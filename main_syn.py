@@ -1298,8 +1298,8 @@ def mp_snv_marker(analysistag, tempdir, model_dir, results, dict_opts, dict_refA
         zscore  = row['Zscore']
         rank_plots(outplot, zscore, df_scores['Zscores'], pe, celltype)
     #loop END:
-    #os.system('rm -rf %s' % results_temp)
-    #os.system('rm -rf %s' % infile)
+    os.system('rm -rf %s' % results_temp)
+    os.system('rm -rf %s' % infile)
 
 #def END: mp_snv_marker
 
@@ -1370,14 +1370,20 @@ def run_snv_marker (parameters):
         dp_combine['genic']         = genic
         dp_combine['altnote']       = altnote.replace('>', '/')
         dp_combine['altnote_AA']    = altnote_AA
+        editpos = int(dp_combine['Edit_pos'])
+        mutpos  = int(dp_combine['Mut_pos'])
+        pbslen  = int(dp_combine['PBSlen'])
+        rtlen   = int(dp_combine['RTlen'])
 
-        # if strand == '-':
-        #     if dp_combine['GuideStrand'] == '-':
-        #         guidestrand = '+'
-        #     else:
-        #         guidestrand = '-'
-        # else:
-        #     guidestrand = dp_combine['GuideStrand']
+        ## Check MutPos Locale
+        if strand == '+':
+            genic_mutpos = (int(pos) - editpos) + mutpos
+        else:
+            genic_mutpos = (int(pos) - (rtlen - editpos)) + (rtlen - mutpos)
+
+        try:
+            dict_mutpos = dict_refAA[genic_mutpos]
+        except KeyError: continue  #MutPos not in CDS
 
         dp_combine['WT74_Strand']   = '%s (%s)' % (dp_combine['WT74_On'], dp_combine['GuideStrand'])
 
@@ -1388,8 +1394,8 @@ def run_snv_marker (parameters):
         dp_combine['ext_top_wSyn']  = 'gtgc%s' % revcom(df_out['pbsrtt_wSyn'])
         dp_combine['ext_bot_wSyn']  = 'aaaa%s' % df_out['pbsrtt_wSyn']
 
-        buffer5 = 21 - dp_combine['PBSlen']
-        buffer3 = 53 - dp_combine['RTlen']
+        buffer5 = 21 - pbslen
+        buffer3 = 53 - rtlen
 
         dp_combine['Edited_wNote']    = ' ' * buffer5 + get_ext_edited_notation(dp_combine['WT74_On'],
                                                                              dp_combine['Edited74_On'])
