@@ -1670,41 +1670,6 @@ def get_entrez_inquiry_from_file (ref, fasta, inputtype, input, target):
 #def END: get_entrez_inquiry_from_file
 
 
-def preprocess_clinvar (tmpdir, infile):
-
-    dict_vcf = parse_vcf_file(infile)
-    list_id  = sorted([id for id in list(dict_vcf.keys())])
-    print(len(list_id))
-
-    bins      = 150
-    total     = len(list_id)
-    list_bins = [[int(total * (i + 0) / bins), int(total * (i + 1) / bins)] for i in range(bins)]
-
-
-    outfile_index = '%s/index.txt' % tmpdir
-    outf          = open(outfile_index, 'w')
-
-    for start, end in list_bins:
-        list_keys = list_id[start:end]
-
-        outtag         = '%s-%s'          % (list_keys[0], list_keys[-1])
-        print(outtag)
-        outfile_pickle = '%s/%s_data.tmp' % (tmpdir, outtag)
-        out             = '%s\t%s\n' % (outtag, outfile_pickle)
-        outf.write(out)
-
-        dict_out  = {key:dict_vcf[key] for key in list_keys}
-        outfile   = open(outfile_pickle, 'wb')
-        pickle.dump(dict_out, outfile)
-        outfile.close()
-    #loop END: start, end
-    outf.close()
-
-    pass
-#def END: preprocess_clinvar
-
-
-
 def preprocess_COSMIC():
 
     # Index COSMIC Database ##
@@ -1759,6 +1724,41 @@ def preprocess_COSMIC():
         outfile.close()
     #loop END: start, end
     outf.close()
+#def END: preprocess_clinvar
+
+
+
+def preprocess_clinvar (tmpdir, infile):
+
+    dict_vcf = parse_vcf_file(infile)
+    list_id  = sorted([id for id in list(dict_vcf.keys())])
+    print(len(list_id))
+
+    bins      = 150
+    total     = len(list_id)
+    list_bins = [[int(total * (i + 0) / bins), int(total * (i + 1) / bins)] for i in range(bins)]
+
+
+    outfile_index = '%s/index.txt' % tmpdir
+    outf          = open(outfile_index, 'w')
+
+    for start, end in list_bins:
+        list_keys = list_id[start:end]
+
+        outtag         = '%s-%s'          % (list_keys[0], list_keys[-1])
+        print(outtag)
+        outfile_pickle = '%s/%s_data.tmp' % (tmpdir, outtag)
+        out             = '%s\t%s\n' % (outtag, outfile_pickle)
+        outf.write(out)
+
+        dict_out  = {key:dict_vcf[key] for key in list_keys}
+        outfile   = open(outfile_pickle, 'wb')
+        pickle.dump(dict_out, outfile)
+        outfile.close()
+    #loop END: start, end
+    outf.close()
+
+    pass
 # def END: preprocess_COSMIC
 
 
@@ -1769,8 +1769,8 @@ def main():
     #preprocess_COSMIC()
     #preprocess_clinvar()
     pass
-
 # def END: main
+
 
 
 if __name__ == '__main__':
